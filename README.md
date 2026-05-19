@@ -1,6 +1,6 @@
 # Attendance Management System (Face Recognition Based)
 
-## 📌 Project Overview
+## Project Overview
 This is a web-based Attendance Management System developed for lecturers and students.  
 It allows lecturers to take attendance manually or using **facial recognition through a camera system**.
 
