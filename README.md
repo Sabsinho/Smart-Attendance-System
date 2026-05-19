@@ -19,9 +19,9 @@ It supports:
 
 ---
 
-## ⚙️ Features
+##  Features
 
-### 👨‍🏫 Lecturer Side
+###  Lecturer Side
 - Login authentication
 - View assigned courses
 - Take attendance manually
@@ -29,19 +29,19 @@ It supports:
 - View reports per course
 - View student attendance history
 
-### 🎓 Student Side
+###  Student Side
 - Stored in database per semester/faculty/shift
 - Attendance tracked per course
 - Individual attendance history
 
-### 🤖 AI Face Recognition
+### AI Face Recognition
 - Uses Python `face_recognition`
 - Matches student face with stored images
 - Automatically marks attendance in database
 
 ---
 
-## 🧠 System Architecture
+##  System Architecture
 
 
 Frontend (PHP + HTML + CSS)
@@ -55,7 +55,7 @@ Camera Input → Face Detection → Attendance Marking
 
 ---
 
-## 🚀 How to Run the Project
+##  How to Run the Project
 
 ### 1. Clone or extract project
 Place it inside:
@@ -120,9 +120,9 @@ CST001.jpg
 CST002.jpg
 CST003.jpg
 
-⚠️ The filename MUST match the student ID in the database.
+ The filename MUST match the student ID in the database.
 
-👥 Group Members
+ Group Members
 1. Mustafe Hussein Addour
 2. Ahmed-Shakir Khadar Abdi
 3. Khadar Mohamed Abdi
