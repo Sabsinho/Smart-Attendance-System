@@ -1,0 +1,143 @@
+CREATE DATABASE smart_attendance;
+
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'lecturer') NOT NULL,
+    lecturer_id INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE faculties (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    faculty_name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE shifts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    shift_name ENUM('Morning','Afternoon','Evening') UNIQUE NOT NULL
+);
+
+
+CREATE TABLE semesters (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    semester_name VARCHAR(50) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL
+);
+
+
+CREATE TABLE students (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id CHAR(5) UNIQUE NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    enrollment_year YEAR NOT NULL,
+    semester_id INT NOT NULL,
+    faculty_id INT NOT NULL,
+    shift_id INT NOT NULL,
+    phone VARCHAR(20),
+    address TEXT,
+    portrait_path VARCHAR(255),
+    encoding_path VARCHAR(255),
+    status ENUM('Active','Suspended','Graduated','Withdrawn') DEFAULT 'Active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (semester_id) REFERENCES semesters(id),
+    FOREIGN KEY (faculty_id) REFERENCES faculties(id),
+    FOREIGN KEY (shift_id) REFERENCES shifts(id)
+);
+
+
+
+CREATE TABLE lecturers (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    lecturer_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    phone VARCHAR(20),
+    staff_id VARCHAR(20) UNIQUE,
+    faculty_id INT NOT NULL,
+    shift_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (faculty_id) REFERENCES faculties(id),
+    FOREIGN KEY (shift_id) REFERENCES shifts(id)
+);
+
+
+CREATE TABLE courses (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    course_name VARCHAR(100) NOT NULL,
+    faculty_id INT NOT NULL,
+    semester_id INT NOT NULL,
+
+    FOREIGN KEY (faculty_id) REFERENCES faculties(id),
+    FOREIGN KEY (semester_id) REFERENCES semesters(id)
+);
+
+
+
+CREATE TABLE schedules (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    faculty_id INT NOT NULL,
+    shift_id INT NOT NULL,
+    semester_id INT NOT NULL,
+    course_id INT NOT NULL,
+    lecturer_id INT NOT NULL,
+    day_name ENUM(
+        'Saturday',
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday'
+    ) NOT NULL,
+
+    FOREIGN KEY (faculty_id) REFERENCES faculties(id),
+    FOREIGN KEY (shift_id) REFERENCES shifts(id),
+    FOREIGN KEY (semester_id) REFERENCES semesters(id),
+    FOREIGN KEY (course_id) REFERENCES courses(id),
+    FOREIGN KEY (lecturer_id) REFERENCES lecturers(id)
+);
+
+
+
+
+CREATE TABLE attendance (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id CHAR(5) NOT NULL,
+    course_id INT NOT NULL,
+    attendance_date DATE NOT NULL,
+    attendance_time TIME NOT NULL,
+    status ENUM('Present','Absent','Late') DEFAULT 'Present',
+
+    UNIQUE(student_id, course_id, attendance_date),
+
+    FOREIGN KEY (course_id) REFERENCES courses(id)
+);
+
+
+
+
+CREATE TABLE alerts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id CHAR(5) NOT NULL,
+    course_id INT NOT NULL,
+    alert_message TEXT NOT NULL,
+    resolved BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (course_id) REFERENCES courses(id)
+);
+
+
+
+CREATE TABLE system_logs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    action TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
