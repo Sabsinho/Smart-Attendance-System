@@ -1,143 +1,142 @@
 CREATE DATABASE smart_attendance;
 
-CREATE TABLE users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'lecturer') NOT NULL,
-    lecturer_id INT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE alerts (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    student_id CHAR(5) NOT NULL,
+    course_id INT(11) NOT NULL,
+    alert_message TEXT NOT NULL,
+    resolved TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX (course_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+
+CREATE TABLE attendance (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    student_id CHAR(5) NOT NULL,
+    course_id INT(11) NOT NULL,
+    attendance_date DATE DEFAULT NULL,
+    attendance_time TIME DEFAULT NULL,
+    status ENUM('Present', 'Absent', 'Late') DEFAULT 'Present',
+    date DATE DEFAULT NULL,
+    time TIME DEFAULT NULL,
+    PRIMARY KEY (id),
+    INDEX (student_id),
+    INDEX (course_id),
+    INDEX (attendance_date)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+
+
+CREATE TABLE courses (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    course_name VARCHAR(100) NOT NULL,
+    course_code VARCHAR(20) NOT NULL,
+    semester_id INT(11) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX (semester_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+
+
+CREATE TABLE course_faculty (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    course_id INT(11) NOT NULL,
+    faculty_id INT(11) NOT NULL,
+    PRIMARY KEY (id),
+    INDEX (course_id),
+    INDEX (faculty_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
 
 CREATE TABLE faculties (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    faculty_name VARCHAR(100) UNIQUE NOT NULL
-);
-
-CREATE TABLE shifts (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    shift_name ENUM('Morning','Afternoon','Evening') UNIQUE NOT NULL
-);
-
-
-CREATE TABLE semesters (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    semester_name VARCHAR(50) NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL
-);
-
-
-CREATE TABLE students (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    student_id CHAR(5) UNIQUE NOT NULL,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    enrollment_year YEAR NOT NULL,
-    semester_id INT NOT NULL,
-    faculty_id INT NOT NULL,
-    shift_id INT NOT NULL,
-    phone VARCHAR(20),
-    address TEXT,
-    portrait_path VARCHAR(255),
-    encoding_path VARCHAR(255),
-    status ENUM('Active','Suspended','Graduated','Withdrawn') DEFAULT 'Active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (semester_id) REFERENCES semesters(id),
-    FOREIGN KEY (faculty_id) REFERENCES faculties(id),
-    FOREIGN KEY (shift_id) REFERENCES shifts(id)
-);
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    faculty_name VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id),
+    INDEX (faculty_name)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 
 
 CREATE TABLE lecturers (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    lecturer_name VARCHAR(100) NOT NULL,
-    email VARCHAR(100),
-    phone VARCHAR(20),
-    staff_id VARCHAR(20) UNIQUE,
-    faculty_id INT NOT NULL,
-    shift_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    first_name VARCHAR(100) DEFAULT NULL,
+    last_name VARCHAR(100) DEFAULT NULL,
+    email VARCHAR(100) DEFAULT NULL,
+    phone VARCHAR(20) DEFAULT NULL,
+    staff_id VARCHAR(20) DEFAULT NULL,
+    course_id INT(11) DEFAULT NULL,
+    portrait_path VARCHAR(255) DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    faculty_id INT(11) NOT NULL,
+    shift_id INT(11) NOT NULL,
+    PRIMARY KEY (id),
+    INDEX (staff_id),
+    INDEX (course_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
-    FOREIGN KEY (faculty_id) REFERENCES faculties(id),
-    FOREIGN KEY (shift_id) REFERENCES shifts(id)
+
+
+
+CREATE TABLE semesters (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    semester_name VARCHAR(50) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    PRIMARY KEY (id)
 );
 
-
-CREATE TABLE courses (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    course_name VARCHAR(100) NOT NULL,
-    faculty_id INT NOT NULL,
-    semester_id INT NOT NULL,
-
-    FOREIGN KEY (faculty_id) REFERENCES faculties(id),
-    FOREIGN KEY (semester_id) REFERENCES semesters(id)
-);
+CREATE TABLE shifts (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    shift_name ENUM('Morning', 'Afternoon', 'Evening') NOT NULL,
+    PRIMARY KEY (id),
+    INDEX (shift_name)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 
-
-CREATE TABLE schedules (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    faculty_id INT NOT NULL,
-    shift_id INT NOT NULL,
-    semester_id INT NOT NULL,
-    course_id INT NOT NULL,
-    lecturer_id INT NOT NULL,
-    day_name ENUM(
-        'Saturday',
-        'Sunday',
-        'Monday',
-        'Tuesday',
-        'Wednesday'
-    ) NOT NULL,
-
-    FOREIGN KEY (faculty_id) REFERENCES faculties(id),
-    FOREIGN KEY (shift_id) REFERENCES shifts(id),
-    FOREIGN KEY (semester_id) REFERENCES semesters(id),
-    FOREIGN KEY (course_id) REFERENCES courses(id),
-    FOREIGN KEY (lecturer_id) REFERENCES lecturers(id)
-);
-
-
-
-
-CREATE TABLE attendance (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE students (
+    id INT(11) NOT NULL AUTO_INCREMENT,
     student_id CHAR(5) NOT NULL,
-    course_id INT NOT NULL,
-    attendance_date DATE NOT NULL,
-    attendance_time TIME NOT NULL,
-    status ENUM('Present','Absent','Late') DEFAULT 'Present',
-
-    UNIQUE(student_id, course_id, attendance_date),
-
-    FOREIGN KEY (course_id) REFERENCES courses(id)
-);
-
-
-
-
-CREATE TABLE alerts (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    student_id CHAR(5) NOT NULL,
-    course_id INT NOT NULL,
-    alert_message TEXT NOT NULL,
-    resolved BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (course_id) REFERENCES courses(id)
-);
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    enrollment_year YEAR(4) NOT NULL,
+    semester_id INT(11) NOT NULL,
+    faculty_id INT(11) NOT NULL,
+    shift_id INT(11) NOT NULL,
+    phone VARCHAR(20) DEFAULT NULL,
+    address TEXT DEFAULT NULL,
+    portrait_path VARCHAR(255) DEFAULT NULL,
+    encoding_path VARCHAR(255) DEFAULT NULL,
+    status ENUM('Active', 'Suspended', 'Graduated', 'Withdrawn') DEFAULT 'Active',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX (student_id),
+    INDEX (semester_id),
+    INDEX (faculty_id),
+    INDEX (shift_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 
 
 CREATE TABLE system_logs (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    user_id INT(11) NOT NULL,
     action TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
 
+CREATE TABLE users (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'lecturer') NOT NULL,
+    lecturer_id INT(11) DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX (username)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
